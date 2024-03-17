@@ -9,7 +9,8 @@ import {
   Switch,
   TextInput,
 } from "react-native-paper";
-import { DatePickerInput } from "react-native-paper-dates";
+import { DatePickerInput, TimePickerModal } from "react-native-paper-dates";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 import { router } from "expo-router";
 import moment from "moment";
@@ -250,6 +251,62 @@ const CreateTask = (props: Props) => {
           </KeyboardAwareScrollView>
         </ScrollView>
       </View>
+      {/* time picker modals */}
+      {visible1 && (
+        <Animated.View
+          className="bg-background/95 absolute top-0 bottom-0 left-0 right-0"
+          entering={FadeIn}
+          exiting={FadeOut}
+        >
+          <TimePickerModal
+            visible={visible1}
+            onDismiss={() => setVisible1(false)}
+            onConfirm={({ hours, minutes }) => {
+              setVisible1(false);
+              setStartTime(moment({ hours, minutes }).format("hh:mm A"));
+            }}
+            hours={
+              startTime !== ""
+                ? parseInt(startTime.split(":")[0], 10)
+                : parseInt(moment(new Date()).format("HH"), 10)
+            }
+            minutes={
+              startTime !== ""
+                ? parseInt(startTime.split(":")[1], 10)
+                : parseInt(moment(new Date()).format("MM"), 10)
+            }
+            locale="en-GB"
+          />
+        </Animated.View>
+      )}
+
+      {visible2 && (
+        <Animated.View
+          className="bg-background/95 absolute top-0 bottom-0 left-0 right-0"
+          entering={FadeIn}
+          exiting={FadeOut}
+        >
+          <TimePickerModal
+            visible={visible2}
+            onDismiss={() => setVisible2(false)}
+            onConfirm={({ hours, minutes }) => {
+              setVisible2(false);
+              setEndTime(moment({ hours, minutes }).format("hh:mm A"));
+            }}
+            hours={
+              endTime !== ""
+                ? parseInt(endTime.split(":")[0], 10)
+                : parseInt(moment(new Date()).format("HH"), 10)
+            }
+            minutes={
+              endTime !== ""
+                ? parseInt(endTime.split(":")[1], 10)
+                : parseInt(moment(new Date()).format("MM"), 10)
+            }
+            locale="en-GB"
+          />
+        </Animated.View>
+      )}
     </View>
   );
 };

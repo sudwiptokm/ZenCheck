@@ -22,12 +22,13 @@ const PrioritySelector = (props: Props) => {
     <View className="flex-1">
       <PText className="text-lg font-semibold mb-2">Priority</PText>
       <View className="flex-row justify-between items-center flex-1">
-        {priorities.map((priority) => (
+        {priorities.map((priority, idx) => (
           <Pressable
             className={`px-8 py-4 rounded-xl bg-surface ${props.current === priority && "rounded-b-0 border-b-2 border-primary"}`}
             onPress={() =>
               props.setPriority(priority as "high" | "medium" | "low")
             }
+            key={idx}
           >
             <PText
               className={`text-center font-medium text-lg ${priorityClasses[priority]}`}

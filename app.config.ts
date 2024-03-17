@@ -7,9 +7,12 @@ const config: ExpoConfig = {
   name: "my-app",
   slug: "my-app",
   scheme: "my-circle",
-  plugins: ["expo-router"],
+  plugins: ["expo-router", "@react-native-google-signin/google-signin"],
   userInterfaceStyle: "dark",
   backgroundColor: "#121212",
+  android: {
+    package: "com.sudwiptokm.zencheck",
+  },
 };
 
 export default config;
