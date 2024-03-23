@@ -53,6 +53,17 @@ export const addReminder = async (data: TaskDTO) => {
       ],
     });
     Alert.alert("Reminder Set!");
+
+    return calendarId;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const removeReminder = async (calendarId: string) => {
+  try {
+    await Calendar.deleteCalendarAsync(calendarId);
+    Alert.alert("Reminder Removed!");
   } catch (e) {
     console.log(e);
   }

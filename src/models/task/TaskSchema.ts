@@ -32,6 +32,7 @@ export const TaskSchema = z.object({
   hasReminder: z.boolean().optional(),
   subTasks: z.array(SubTaskSchema).optional(),
   notes: z.array(z.string()).optional(),
+  calendarId: z.string().optional(),
 });
 export type TaskDTO = z.infer<typeof TaskSchema>;
 

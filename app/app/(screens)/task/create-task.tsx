@@ -1,7 +1,6 @@
 import "react-native-get-random-values";
 
-import React, { useState } from "react";
-import { ScrollView, View } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import {
   Button,
   HelperText,
@@ -10,20 +9,21 @@ import {
   TextInput,
 } from "react-native-paper";
 import { DatePickerInput, TimePickerModal } from "react-native-paper-dates";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import React, { useState } from "react";
+import { ScrollView, View } from "react-native";
 
-import { router } from "expo-router";
-import moment from "moment";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { useDispatch } from "react-redux";
-import { v4 as uuidv4 } from "uuid";
+import PText from "../../../../src/components/modular/molecular/texts/PText";
 import PrioritySelector from "../../../../src/components/complex/prioritySelector/PrioritySelector";
 import SecondaryHeader from "../../../../src/components/modular/molecular/headers/SecondaryHeader";
-import PText from "../../../../src/components/modular/molecular/texts/PText";
 import { TaskDTO } from "../../../../src/models/task/TaskSchema";
-import { addTask } from "../../../../src/redux/slices/TaskSlice";
-import useCalendarPermissions from "../../../../src/utils/calender";
 import { addReminder } from "../../../../src/utils/helperFunctions";
+import { addTask } from "../../../../src/redux/slices/TaskSlice";
+import moment from "moment";
+import { router } from "expo-router";
+import useCalendarPermissions from "../../../../src/utils/calender";
+import { useDispatch } from "react-redux";
+import { v4 as uuidv4 } from "uuid";
 
 type Props = object;
 
@@ -61,7 +61,7 @@ const CreateTask = (props: Props) => {
   useCalendarPermissions();
 
   //   functions
-  const createTask = () => {
+  const createTask = async () => {
     //   create task
     if (name === "") {
       setNameError(true);
@@ -84,8 +84,10 @@ const CreateTask = (props: Props) => {
         notes: [],
         id: uuidv4(),
       };
-      if (hasReminder) addReminder(data);
-
+      if (hasReminder) {
+        const calendarId = await addReminder(data);
+        data.calendarId = calendarId;
+      }
       dispatch(addTask(data));
 
       router.push("app/home");

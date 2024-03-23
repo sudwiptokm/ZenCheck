@@ -1,6 +1,4 @@
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import {
   Button,
   Dialog,
@@ -10,7 +8,8 @@ import {
   TextInput,
 } from "react-native-paper";
 import { DatePickerInput, TimePickerModal } from "react-native-paper-dates";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { Pressable, ScrollView, View } from "react-native";
+import React, { useEffect, useState } from "react";
 import { SubTaskDTO, TaskDTO } from "../../../../../src/models/task/TaskSchema";
 import {
   addNote,
@@ -19,14 +18,19 @@ import {
   selectSingleTask,
   updateTask,
 } from "../../../../../src/redux/slices/TaskSlice";
+import {
+  addReminder,
+  removeReminder,
+} from "../../../../../src/utils/helperFunctions";
+import { router, useLocalSearchParams } from "expo-router";
 
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import PText from "@components/modular/molecular/texts/PText";
 import PrioritySelector from "@components/complex/prioritySelector/PrioritySelector";
 import SecondaryHeader from "@components/modular/molecular/headers/SecondaryHeader";
-import PText from "@components/modular/molecular/texts/PText";
 import moment from "moment";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { useDispatch } from "react-redux";
 import { useAppSelector } from "../../../../../src/redux/hooks";
+import { useDispatch } from "react-redux";
 
 type Props = object;
 
@@ -88,7 +92,7 @@ const EditTask = (props: Props) => {
   const [nameError, setNameError] = useState(false);
 
   //   functions
-  const createTask = () => {
+  const createTask = async () => {
     //   create task
     if (name === "") {
       setNameError(true);
@@ -111,6 +115,14 @@ const EditTask = (props: Props) => {
         notes,
         id: id!,
       };
+      if (hasReminder && !task?.calendarId) {
+        const calendarId = await addReminder(data);
+        data.calendarId = calendarId;
+      } else if (!hasReminder && task?.calendarId) {
+        //   delete reminder
+        await removeReminder(task.calendarId);
+        data.calendarId = undefined;
+      }
 
       dispatch(updateTask(data));
 
