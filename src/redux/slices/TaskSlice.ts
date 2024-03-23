@@ -20,10 +20,62 @@ export const TaskSlice = createSlice({
     deleteTask: (state, action: PayloadAction<string>) => {
       return state.filter((task) => task.id !== action.payload);
     },
+    addSubTask: (state, action: PayloadAction<TaskDTO>) => {
+      const index = state.findIndex((task) => task.id === action.payload.id);
+      if (index !== -1) {
+        state[index].subTasks!.push(action.payload);
+      }
+    },
+    deleteSubTask: (
+      state,
+      action: PayloadAction<{ taskId: string; subTaskId: string }>,
+    ) => {
+      const taskIndex = state.findIndex(
+        (task) => task.id === action.payload.taskId,
+      );
+      if (taskIndex !== -1) {
+        state[taskIndex].subTasks = state[taskIndex].subTasks!.filter(
+          (subTask) => subTask.id !== action.payload.subTaskId,
+        );
+      }
+    },
+    deleteNote: (
+      state,
+      action: PayloadAction<{ taskId: string; noteId: number }>,
+    ) => {
+      const taskIndex = state.findIndex(
+        (task) => task.id === action.payload.taskId,
+      );
+      if (taskIndex !== -1) {
+        state[taskIndex].notes = state[taskIndex].notes!.filter(
+          (note, idx) => idx !== action.payload.noteId,
+        );
+      }
+    },
+
+    addNote: (
+      state,
+      action: PayloadAction<{ taskId: string; note: string }>,
+    ) => {
+      const taskIndex = state.findIndex(
+        (task) => task.id === action.payload.taskId,
+      );
+      if (taskIndex !== -1) {
+        state[taskIndex].notes!.push(action.payload.note);
+      }
+    },
   },
 });
 
-export const { addTask, updateTask, deleteTask } = TaskSlice.actions;
+export const {
+  addTask,
+  updateTask,
+  deleteTask,
+  addSubTask,
+  deleteSubTask,
+  addNote,
+  deleteNote,
+} = TaskSlice.actions;
 
 export default TaskSlice.reducer;
 

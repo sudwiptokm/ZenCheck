@@ -1,8 +1,9 @@
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
-import { ScrollView, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Pressable, ScrollView, View } from "react-native";
 import {
   Button,
+  Dialog,
   HelperText,
   Menu,
   Switch,
@@ -12,6 +13,9 @@ import { DatePickerInput, TimePickerModal } from "react-native-paper-dates";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { SubTaskDTO, TaskDTO } from "../../../../../src/models/task/TaskSchema";
 import {
+  addNote,
+  deleteNote,
+  deleteSubTask,
   selectSingleTask,
   updateTask,
 } from "../../../../../src/redux/slices/TaskSlice";
@@ -68,6 +72,18 @@ const EditTask = (props: Props) => {
     y: number;
   }>();
 
+  // Dialogs for sub-tasks
+  const [showDialog1, setShowDialog1] = React.useState(false);
+  const [dialogData, setDialogData] = React.useState<SubTaskDTO>();
+  // Dialogs for notes
+  const [showDialog2, setShowDialog2] = React.useState(false);
+  const [dialogNote, setDialogNote] = React.useState<{
+    note: string;
+    id: number;
+  }>();
+  const [showDialog3, setShowDialog3] = React.useState(false);
+  const [tempNote, setTempNote] = useState<string>("");
+
   //   Name Error
   const [nameError, setNameError] = useState(false);
 
@@ -101,6 +117,14 @@ const EditTask = (props: Props) => {
       router.push("app/home");
     }
   };
+
+  useEffect(() => {
+    setSubTasks(task?.subTasks);
+  }, [task?.subTasks]);
+
+  useEffect(() => {
+    setNotes(task?.notes);
+  }, [task?.notes]);
 
   return (
     <View className="flex-1">
@@ -136,7 +160,7 @@ const EditTask = (props: Props) => {
               <View
                 className="flex-1"
                 onLayout={(event) => {
-                  event.target.measure((x, y, width, height, pageX, pageY) => {
+                  event.target.measure((y, height, pageX, pageY) => {
                     setMenuAnchor({
                       x: pageX,
                       y: y + pageY + height,
@@ -254,9 +278,63 @@ const EditTask = (props: Props) => {
             </View>
 
             {/* SubTask and Notes */}
-            <View className="mt-6 flex-row justify-between">
-              <Button icon="plus">Add Sub-Tasks</Button>
-              <Button icon="plus">Add Notes</Button>
+            <View className="mt-6 flex-row">
+              {/* Tasks */}
+              <View className="flex-1">
+                <Button
+                  icon="plus"
+                  onPress={() =>
+                    router.push({
+                      pathname: "app/task/sub-task",
+                      params: { id },
+                    })
+                  }
+                  style={{ alignSelf: "flex-start" }}
+                >
+                  Add Sub-Tasks
+                </Button>
+                <View className="flex-1">
+                  <View className="flex-col gap-y-1">
+                    {subTasks?.map((task, index) => (
+                      <Pressable
+                        className="flex-row items-center gap-x-4"
+                        key={index}
+                        onPress={() => {
+                          setShowDialog1(true);
+                          setDialogData(task);
+                        }}
+                      >
+                        <PText>• {task.name}</PText>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              </View>
+
+              {/* Notes */}
+              <View className="flex-1">
+                <Button
+                  icon="plus"
+                  style={{ alignSelf: "flex-start" }}
+                  onPress={() => setShowDialog3(true)}
+                >
+                  Add Notes
+                </Button>
+                <View className="flex-col gap-y-1">
+                  {notes?.map((note, index) => (
+                    <Pressable
+                      className="flex-row items-center gap-x-4"
+                      key={index}
+                      onPress={() => {
+                        setShowDialog2(true);
+                        setDialogNote({ note, id: index });
+                      }}
+                    >
+                      <PText>• {`${note.substring(0, 20)}...`}</PText>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
             </View>
 
             {/* Submit Button */}
@@ -330,6 +408,92 @@ const EditTask = (props: Props) => {
           />
         </Animated.View>
       )}
+
+      {/* Dialogs for Subtask */}
+      <Dialog
+        visible={showDialog1}
+        onDismiss={() => setShowDialog1(false)}
+        style={{ backgroundColor: "#1A2120" }}
+      >
+        <Dialog.Title>{dialogData?.name}</Dialog.Title>
+        <Dialog.Content>
+          <View className="flex-row items-center">
+            <PText>Date: {dialogData?.startDate} - </PText>
+            <PText>{dialogData?.endDate}</PText>
+          </View>
+          <View className="flex-row items-center">
+            <PText>Time: {dialogData?.startTime} - </PText>
+            <PText>{dialogData?.endTime}</PText>
+          </View>
+          <PText>Priority: {dialogData?.priority}</PText>
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button
+            onPress={() => {
+              dispatch(
+                deleteSubTask({ taskId: id!, subTaskId: dialogData?.id! }),
+              );
+              setShowDialog1(false);
+            }}
+            textColor="red"
+          >
+            Delete
+          </Button>
+          <Button onPress={() => setShowDialog1(false)}>Close</Button>
+        </Dialog.Actions>
+      </Dialog>
+
+      {/* Dialogs for Notes */}
+      <Dialog
+        visible={showDialog2}
+        onDismiss={() => setShowDialog2(false)}
+        style={{ backgroundColor: "#1A2120" }}
+      >
+        <Dialog.Content>
+          <PText>{dialogNote?.note}</PText>
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button
+            onPress={() => {
+              dispatch(deleteNote({ taskId: id!, noteId: dialogNote?.id! }));
+              setShowDialog2(false);
+            }}
+            textColor="red"
+          >
+            Delete
+          </Button>
+          <Button onPress={() => setShowDialog2(false)}>Close</Button>
+        </Dialog.Actions>
+      </Dialog>
+
+      <Dialog
+        visible={showDialog3}
+        onDismiss={() => setShowDialog3(false)}
+        style={{ backgroundColor: "#1A2120" }}
+      >
+        <Dialog.Content>
+          <TextInput
+            value={tempNote}
+            onChangeText={setTempNote}
+            multiline
+            placeholder="Enter your note here..."
+            label="Note"
+          />
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button
+            onPress={() => {
+              dispatch(addNote({ taskId: id!, note: tempNote }));
+              setShowDialog3(false);
+              setTempNote("");
+            }}
+            mode="contained"
+          >
+            Save
+          </Button>
+          <Button onPress={() => setShowDialog3(false)}>Close</Button>
+        </Dialog.Actions>
+      </Dialog>
     </View>
   );
 };

@@ -15,8 +15,6 @@ const Index = (props: Props) => {
 
   const tasks = useAppSelector(selectAllTasks);
 
-  console.log({ tasks });
-
   return (
     <SafeAreaView className="">
       <View className="min-h-screen px-6">
