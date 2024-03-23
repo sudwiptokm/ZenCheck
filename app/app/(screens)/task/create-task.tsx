@@ -9,7 +9,8 @@ import {
   Switch,
   TextInput,
 } from "react-native-paper";
-import { DatePickerInput } from "react-native-paper-dates";
+import { DatePickerInput, TimePickerModal } from "react-native-paper-dates";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 import { router } from "expo-router";
 import moment from "moment";
@@ -21,6 +22,8 @@ import SecondaryHeader from "../../../../src/components/modular/molecular/header
 import PText from "../../../../src/components/modular/molecular/texts/PText";
 import { TaskDTO } from "../../../../src/models/task/TaskSchema";
 import { addTask } from "../../../../src/redux/slices/TaskSlice";
+import useCalendarPermissions from "../../../../src/utils/calender";
+import { addReminder } from "../../../../src/utils/helperFunctions";
 
 type Props = object;
 
@@ -32,8 +35,8 @@ const CreateTask = (props: Props) => {
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high">();
   const [type, setType] = useState("");
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
   const [startTime, setStartTime] = useState(
     moment(new Date()).format("hh:mm A"),
   );
@@ -53,6 +56,9 @@ const CreateTask = (props: Props) => {
 
   //   Name Error
   const [nameError, setNameError] = useState(false);
+
+  // Calendar
+  useCalendarPermissions();
 
   //   functions
   const createTask = () => {
@@ -78,7 +84,7 @@ const CreateTask = (props: Props) => {
         notes: [],
         id: uuidv4(),
       };
-      console.log({ data });
+      if (hasReminder) addReminder(data);
 
       dispatch(addTask(data));
 
@@ -177,7 +183,7 @@ const CreateTask = (props: Props) => {
                 locale="en-GB"
                 label="Start Date"
                 value={!startDate ? new Date() : startDate}
-                onChange={(d) => setStartDate(d)}
+                onChange={(d) => setStartDate(d as Date)}
                 inputMode="start"
                 mode="outlined"
                 validRange={{ startDate: new Date() }}
@@ -188,7 +194,7 @@ const CreateTask = (props: Props) => {
                 value={
                   !endDate ? (startDate ? startDate : new Date()) : endDate
                 }
-                onChange={(d) => setEndDate(d)}
+                onChange={(d) => setEndDate(d as Date)}
                 inputMode="start"
                 mode="outlined"
                 validRange={{
@@ -250,6 +256,62 @@ const CreateTask = (props: Props) => {
           </KeyboardAwareScrollView>
         </ScrollView>
       </View>
+      {/* time picker modals */}
+      {visible1 && (
+        <Animated.View
+          className="bg-background/95 absolute top-0 bottom-0 left-0 right-0"
+          entering={FadeIn}
+          exiting={FadeOut}
+        >
+          <TimePickerModal
+            visible={visible1}
+            onDismiss={() => setVisible1(false)}
+            onConfirm={({ hours, minutes }) => {
+              setVisible1(false);
+              setStartTime(moment({ hours, minutes }).format("hh:mm A"));
+            }}
+            hours={
+              startTime !== ""
+                ? parseInt(startTime.split(":")[0], 10)
+                : parseInt(moment(new Date()).format("HH"), 10)
+            }
+            minutes={
+              startTime !== ""
+                ? parseInt(startTime.split(":")[1], 10)
+                : parseInt(moment(new Date()).format("MM"), 10)
+            }
+            locale="en-GB"
+          />
+        </Animated.View>
+      )}
+
+      {visible2 && (
+        <Animated.View
+          className="bg-background/95 absolute top-0 bottom-0 left-0 right-0"
+          entering={FadeIn}
+          exiting={FadeOut}
+        >
+          <TimePickerModal
+            visible={visible2}
+            onDismiss={() => setVisible2(false)}
+            onConfirm={({ hours, minutes }) => {
+              setVisible2(false);
+              setEndTime(moment({ hours, minutes }).format("hh:mm A"));
+            }}
+            hours={
+              endTime !== ""
+                ? parseInt(endTime.split(":")[0], 10)
+                : parseInt(moment(new Date()).format("HH"), 10)
+            }
+            minutes={
+              endTime !== ""
+                ? parseInt(endTime.split(":")[1], 10)
+                : parseInt(moment(new Date()).format("MM"), 10)
+            }
+            locale="en-GB"
+          />
+        </Animated.View>
+      )}
     </View>
   );
 };
