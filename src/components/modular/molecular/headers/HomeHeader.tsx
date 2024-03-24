@@ -1,18 +1,23 @@
+import { Divider, Menu } from "react-native-paper";
 import { DrawerActions, NavigationProp } from "@react-navigation/native";
 import { Pressable, View } from "react-native";
 
 import { MaterialIcons } from "@expo/vector-icons";
-import { Menu } from "react-native-paper";
 import PText from "../texts/PText";
 import React from "react";
 
 type Props = {
   navigation: NavigationProp<ReactNavigation.RootParamList>;
   title?: string;
+  sortOrder?: "asc" | "desc";
+  sortType?: "date" | "priority";
+  setSortOrder?: (order: "asc" | "desc") => void;
+  setSortType?: (type: "date" | "priority") => void;
 };
 
 const HomeHeader = (props: Props) => {
   const [visible, setVisible] = React.useState(false);
+
   return (
     <View className="flex-row justify-between items- mt-6">
       <Pressable
@@ -36,9 +41,35 @@ const HomeHeader = (props: Props) => {
         }
         anchorPosition="bottom"
       >
-        <Menu.Item onPress={() => {}} title="By Date" />
-        <Menu.Item onPress={() => {}} title="By Priority" />
-        <Menu.Item onPress={() => {}} title="By Type" />
+        <Menu.Item
+          onPress={() => {
+            props.setSortType!("date");
+          }}
+          title="By Date"
+          leadingIcon={props.sortType === "date" ? "check" : undefined}
+        />
+        <Menu.Item
+          onPress={() => {
+            props.setSortType!("priority");
+          }}
+          title="By Priority"
+          leadingIcon={props.sortType === "priority" ? "check" : undefined}
+        />
+        <Divider />
+        <Menu.Item
+          onPress={() => {
+            props.setSortOrder!("asc");
+          }}
+          title="Ascending"
+          leadingIcon={props.sortOrder === "asc" ? "check" : undefined}
+        />
+        <Menu.Item
+          onPress={() => {
+            props.setSortOrder!("desc");
+          }}
+          title="Descending"
+          leadingIcon={props.sortOrder === "desc" ? "check" : undefined}
+        />
       </Menu>
     </View>
   );

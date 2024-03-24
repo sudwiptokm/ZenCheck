@@ -2,6 +2,10 @@ import Animated, { LinearTransition } from "react-native-reanimated";
 import React, { useEffect } from "react";
 import { SafeAreaView, ScrollView, View } from "react-native";
 import { router, useNavigation } from "expo-router";
+import {
+  sortTasksByDate,
+  sortTasksByPriority,
+} from "../../../src/utils/helperFunctions";
 
 import { FAB } from "react-native-paper";
 import HomeHeader from "../../../src/components/modular/molecular/headers/HomeHeader";
@@ -17,9 +21,24 @@ const Index = (props: Props) => {
 
   const tasks: TaskDTO[] = useAppSelector(selectAllTasks);
 
+  console.log({ tasks });
+
   const [localTasks, setLocalTasks] = React.useState(
     tasks.filter((task) => task.isCompleted === false),
   );
+  const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
+  const [sortType, setSortType] = React.useState<"date" | "priority">("date");
+
+  // Sorting the tasks based on the sortType and sortOrder
+  useEffect(() => {
+    if (sortType === "priority") {
+      const sortedTasks = sortTasksByPriority(localTasks, sortOrder);
+      setLocalTasks(sortedTasks);
+    } else if (sortType === "date") {
+      const sortedTask = sortTasksByDate(localTasks, sortOrder);
+      setLocalTasks(sortedTask);
+    }
+  }, [sortOrder, sortType]);
 
   useEffect(() => {
     setLocalTasks(tasks.filter((task) => task.isCompleted === false));
@@ -29,7 +48,13 @@ const Index = (props: Props) => {
     <SafeAreaView className="">
       <View className="min-h-screen px-6">
         {/* Main Logo Text */}
-        <HomeHeader navigation={navigation} />
+        <HomeHeader
+          navigation={navigation}
+          setSortOrder={setSortOrder}
+          setSortType={setSortType}
+          sortOrder={sortOrder}
+          sortType={sortType}
+        />
 
         {/* Task View */}
         <ScrollView className="mt-12">

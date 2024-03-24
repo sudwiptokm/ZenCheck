@@ -68,3 +68,34 @@ export const removeReminder = async (calendarId: string) => {
     console.log(e);
   }
 };
+
+export const sortTasksByPriority = (
+  tasks: TaskDTO[],
+  order: "asc" | "desc" = "asc",
+) => {
+  const priorityMap = { low: 0, medium: 1, high: 2 };
+
+  return tasks.sort((task1, task2) => {
+    const priority1 = priorityMap[task1.priority as keyof typeof priorityMap];
+    const priority2 = priorityMap[task2.priority as keyof typeof priorityMap];
+
+    if (order === "asc") {
+      return priority1 - priority2;
+    } else {
+      return priority2 - priority1;
+    }
+  });
+};
+
+export const sortTasksByDate = (tasks: TaskDTO[], order = "asc") => {
+  return tasks.sort((task1, task2) => {
+    const date1 = new Date(task1.createdAt).getTime();
+    const date2 = new Date(task2.createdAt).getTime();
+
+    if (order === "asc") {
+      return date1 - date2;
+    } else {
+      return date2 - date1;
+    }
+  });
+};
