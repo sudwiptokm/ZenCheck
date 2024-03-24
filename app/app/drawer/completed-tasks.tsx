@@ -1,35 +1,33 @@
 import Animated, { LinearTransition } from "react-native-reanimated";
 import React, { useEffect } from "react";
 import { SafeAreaView, ScrollView, View } from "react-native";
-import { router, useNavigation } from "expo-router";
 
-import { FAB } from "react-native-paper";
 import HomeHeader from "../../../src/components/modular/molecular/headers/HomeHeader";
 import { TaskDTO } from "../../../src/models/task/TaskSchema";
 import TaskView from "../../../src/components/modular/atomic/TaskView";
 import { selectAllTasks } from "../../../src/redux/slices/TaskSlice";
 import { useAppSelector } from "../../../src/redux/hooks";
+import { useNavigation } from "expo-router";
 
 type Props = object;
 
-const Index = (props: Props) => {
+const CompletedTasks = (props: Props) => {
   const navigation = useNavigation();
 
   const tasks: TaskDTO[] = useAppSelector(selectAllTasks);
 
   const [localTasks, setLocalTasks] = React.useState(
-    tasks.filter((task) => task.isCompleted === false),
+    tasks.filter((task) => task.isCompleted === true),
   );
 
   useEffect(() => {
-    setLocalTasks(tasks.filter((task) => task.isCompleted === false));
+    setLocalTasks(tasks.filter((task) => task.isCompleted === true));
   }, [tasks]);
-
   return (
-    <SafeAreaView className="">
+    <SafeAreaView className="flex-1" style={{ backgroundColor: "#121212" }}>
       <View className="min-h-screen px-6">
         {/* Main Logo Text */}
-        <HomeHeader navigation={navigation} />
+        <HomeHeader navigation={navigation} title="Completed Tasks" />
 
         {/* Task View */}
         <ScrollView className="mt-12">
@@ -40,14 +38,8 @@ const Index = (props: Props) => {
           </Animated.View>
         </ScrollView>
       </View>
-      <FAB
-        icon="plus"
-        onPress={() => router.push("app/task/create-task")}
-        className="absolute right-0 bottom-10 m-4 bg-surface"
-        variant="surface"
-      />
     </SafeAreaView>
   );
 };
 
-export default Index;
+export default CompletedTasks;

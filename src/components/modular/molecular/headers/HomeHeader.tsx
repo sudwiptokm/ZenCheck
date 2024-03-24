@@ -1,13 +1,14 @@
 import { DrawerActions, NavigationProp } from "@react-navigation/native";
 import { Pressable, View } from "react-native";
-import { Menu } from "react-native-paper";
 
 import { MaterialIcons } from "@expo/vector-icons";
-import React from "react";
+import { Menu } from "react-native-paper";
 import PText from "../texts/PText";
+import React from "react";
 
 type Props = {
   navigation: NavigationProp<ReactNavigation.RootParamList>;
+  title?: string;
 };
 
 const HomeHeader = (props: Props) => {
@@ -21,7 +22,9 @@ const HomeHeader = (props: Props) => {
       >
         <MaterialIcons name="menu" size={24} color="white" />
       </Pressable>
-      <PText className="text-2xl font-semibold">Your Tasks</PText>
+      <PText className="text-2xl font-semibold">
+        {props.title ? props.title : "Your Tasks"}
+      </PText>
 
       <Menu
         visible={visible}

@@ -1,16 +1,22 @@
 import { Pressable, SafeAreaView, View } from "react-native";
 
+import { DrawerContentComponentProps } from "@react-navigation/drawer";
 import Logo from "@assets/images/zen_check.svg";
 import { MaterialIcons } from "@expo/vector-icons";
-import { DrawerContentComponentProps } from "@react-navigation/drawer";
-import React from "react";
 import PText from "../modular/molecular/texts/PText";
+import React from "react";
+import { router } from "expo-router";
 
 type Props = {
   props: DrawerContentComponentProps;
 };
 
 const contents = [
+  {
+    icon: "home",
+    text: "Home",
+    href: "app/home",
+  },
   {
     icon: "settings",
     text: "Settings",
@@ -24,7 +30,7 @@ const contents = [
   {
     icon: "check",
     text: "Completed Tasks",
-    href: "/completed-tasks",
+    href: "app/drawer/completed-tasks",
   },
   {
     icon: "show-chart",
@@ -63,6 +69,7 @@ const CustomDrawerContent = (props: Props) => {
             <Pressable
               key={index}
               className="py-5 flex-row items-center gap-x-3"
+              onPress={() => router.push(content.href)}
             >
               <MaterialIcons
                 name={content.icon as keyof typeof MaterialIcons.glyphMap}

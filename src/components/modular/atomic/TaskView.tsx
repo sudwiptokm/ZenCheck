@@ -1,12 +1,14 @@
 import { Pressable, View } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React from "react";
+import PText from "../molecular/texts/PText";
 import { RadioButton } from "react-native-paper";
+import React from "react";
 import { TaskDTO } from "../../../models/task/TaskSchema";
 import TaskPill from "../molecular/pills/TaskPill";
-import PText from "../molecular/texts/PText";
+import { router } from "expo-router";
+import { updateTask } from "../../../redux/slices/TaskSlice";
+import { useAppDispatch } from "../../../redux/hooks";
 
 type Props = {
   task: TaskDTO;
@@ -14,6 +16,7 @@ type Props = {
 
 const TaskView = ({ task }: Props) => {
   const [checked, setChecked] = React.useState(task.isCompleted);
+  const dispatch = useAppDispatch();
   return (
     <View className="flex-row items-center gap-x-4">
       <View
@@ -22,7 +25,10 @@ const TaskView = ({ task }: Props) => {
         <RadioButton
           value="status"
           status={checked ? "checked" : "unchecked"}
-          onPress={() => setChecked((prev) => !prev)}
+          onPress={() => {
+            setChecked((prev) => !prev);
+            dispatch(updateTask({ ...task, isCompleted: !checked }));
+          }}
         />
       </View>
       <Pressable
